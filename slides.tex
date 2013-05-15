@@ -1,5 +1,4 @@
-\documentclass{beamer}
-\usepackage[utf8]{inputenc}
+\documentclass[utf8x]{beamer}
 \usepackage[russian]{babel}
 \usepackage{listings}
 
@@ -12,13 +11,30 @@
 \begin{document}
 \lstset{language=C}
 
-\frame{\titlepage}
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+    \tableofcontents
+\end{frame}
+
+\section{Введение}
+
 \begin{frame}
     \frametitle{Почему C++?}
 \end{frame}
+
+\section{Особенности}
+
+\subsection{Как найти компилятор}
+
 \begin{frame}
     \frametitle{Как найти компилятор}
 \end{frame}
+
+\subsection{Конфликты имен}
+
 \begin{frame}[fragile]
     \frametitle{Конфликты имен}
     \begin{exampleblock}{Пример}
@@ -28,6 +44,9 @@
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\subsection{Трансляция C++ исключений в Perl-исключения}
+
 \begin{frame}
     \frametitle{Трансляция C++ исключений в Perl-исключения}
 \end{frame}
