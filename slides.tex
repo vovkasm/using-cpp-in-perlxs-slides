@@ -1,0 +1,35 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{listings}
+
+\usetheme{Frankfurt}
+
+\title{Особенности создания XS-модулей на языке C++}
+\author{Владимир Тимофеев}
+\date{2013}
+
+\begin{document}
+\lstset{language=C}
+
+\frame{\titlepage}
+\begin{frame}
+    \frametitle{Почему C++?}
+\end{frame}
+\begin{frame}
+    \frametitle{Как найти компилятор}
+\end{frame}
+\begin{frame}[fragile]
+    \frametitle{Конфликты имен}
+    \begin{exampleblock}{Пример}
+        \begin{lstlisting}
+        #undef do_open
+        #undef do_close
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+\begin{frame}
+    \frametitle{Трансляция C++ исключений в Perl-исключения}
+\end{frame}
+
+\end{document}
