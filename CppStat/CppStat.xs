@@ -10,16 +10,9 @@ extern "C" {
 #endif
 
 #include "XSUB.h"
-#include "ppport.h"
 
-#include <algorithm>
+#include <numeric>
 #include <vector>
-
-struct Summator {
-    Summator() : sum(0) { }
-    void operator() (double val) { sum += val }
-    double sum;
-};
 
 class CppStat {
 public:
@@ -28,9 +21,7 @@ public:
 
     void add(double val) { values.push_back(val); }
     double avg() const {
-        Summator s;
-        std::for_each(values.begin(), values.end(), s);
-        return s.sum / values.size();
+        return std::accumulate(values.begin(), values.end(), 0.0) / values.size();
     }
         
 private:
@@ -39,7 +30,7 @@ private:
 
 MODULE = CppStat        PACKAGE = CppStat
 
-void
+CppStat*
 CppStat::new();
 
 void
