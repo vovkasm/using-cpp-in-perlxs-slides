@@ -1,11 +1,12 @@
 use ExtUtils::MakeMaker;
+use Config;
 
-my $CC = 'g++';
+my $CCFLAGS = join(' ',$Config{ccflags},'-x c++');
 
 WriteMakefile(
     NAME         => 'CppStat',
     VERSION_FROM => 'CppStat.pm',
     TYPEMAPS     => ['perlobject.map'],
-    CC => $CC,
-    LD => '$(CC)',
+    LIBS         => ['-lstdc++'],
+    CCFLAGS      => $CCFLAGS,
 );

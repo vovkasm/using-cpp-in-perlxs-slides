@@ -1,4 +1,4 @@
-\documentclass[utf8x]{beamer}
+\documentclass[utf8x,smaller]{beamer}
 \usepackage[russian]{babel}
 \usepackage{listings}
 
@@ -8,8 +8,33 @@
 \author{Владимир Тимофеев}
 \date{2013}
 
+\usepackage{color}
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.9,0,0}
+\definecolor{graylinenumbers}{rgb}{0.6,0.6,0.6}
+
+\lstset{% listings parameters
+    basicstyle=\scriptsize\ttfamily,
+    showspaces=false,
+    showtabs=false,
+    showstringspaces=false,
+    breaklines=true,
+    breakwhitespace=true,
+    numbers=left,
+    numbersep=5pt,
+    numberstyle=\color{graylinenumbers}\tiny,
+    stepnumber=2,
+    commentstyle=\color{greencomments},
+    keywordstyle=\color{bluekeywords}\bfseries,
+    stringstyle=\color{redstrings},
+    language=C }
+
+\lstdefinestyle{PerlXS}{
+    language=C++,
+    morekeywords={MODULE,PACKAGE,DESTROY} }
+
 \begin{document}
-\lstset{language=C}
 
 \begin{frame}
     \titlepage
@@ -42,34 +67,212 @@
         \item Похож на C
         \item Сравним по скорости и потреблению памяти
         \item + Инкапсуляция
-        \item + STL
+        \item + STL, Boost, \dots
     \end{itemize}
 \end{frame}
 
-\section{Особенности}
+\section{Пример}
 
-\subsection{Как найти компилятор}
-
-\begin{frame}
-    \frametitle{Как найти компилятор}
+\begin{frame}[t,fragile]
+    \frametitle{Пример}
+    \begin{columns}[t]
+        \begin{column}{.3\textwidth}
+            \begin{itemize}
+                \item<alert@1> Makefile.PL
+                \item<alert@2> CppStat.pm
+                \item<alert@3-5> CppStat.xs
+                \item typemap
+                \item perlobject.map
+            \end{itemize}
+        \end{column}
+        \begin{column}{.8\textwidth}
+            \only<1>{ \lstinputlisting[language=Perl]{CppStat/Makefile.PL} }
+            \only<2>{ \lstinputlisting[language=Perl]{CppStat/CppStat.pm} }
+            \only<3>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=1, lastline=15]{CppStat/CppStat.xs} }
+            \only<4>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=last, firstline=17, lastline=34]{CppStat/CppStat.xs} }
+            \only<5>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=last, firstline=36]{CppStat/CppStat.xs} }
+        \end{column}
+    \end{columns}
 \end{frame}
 
-\subsection{Конфликты имен}
+
+\section{Как найти компилятор}
+
+\subsection{CC = g++}
+\begin{frame}[fragile]
+    \frametitle{CC = g++}
+    \lstinputlisting[language=Perl]{CppStat/Makefile.PL}
+    \begin{itemize}
+        \item Только GCC
+        \item Все файлы как C++
+    \end{itemize}
+\end{frame}
+
+\subsection{-x c++}
+\begin{frame}[fragile]
+    \frametitle{-x c++}
+    \lstinputlisting[language=Perl]{CppStat2/Makefile.PL}
+    \begin{itemize}
+        \item Компилятор тот же, что для perl
+        \item Компилятор должен понимать опцию -x (GCC,Clang)
+        \item Все файлы как C++
+    \end{itemize}
+\end{frame}
+
+\subsection{ExtUtils::CppGuess}
+\begin{frame}[fragile]
+    \frametitle{ExtUtils::CppGuess}
+    \lstinputlisting[language=Perl]{CppStat3/Makefile.PL}
+    \begin{itemize}
+        \item Компилятор тот же, что для perl
+        \item GCC,Clang,MSVC
+        \item Все файлы как C++
+    \end{itemize}
+\end{frame}
+
+\subsection{Module::Build::WithXSpp}
+\begin{frame}
+    \frametitle{Module::Build::WithXSpp}
+    Использует ExtUtils::CppGuess, но...
+    \begin{itemize}
+        \item XS++
+        \item Module::Build
+    \end{itemize}
+\end{frame}
+
+\subsection{Статистика}
+\begin{frame}
+    \frametitle{Статистика}
+    \begin{itemize}
+        \item Всего на CPAN: $\sim120$
+        \item CC = g++: $\sim50$
+        \item ExtUtils::CppGuess: $13$
+        \item Module::Build: $\sim15$
+        \item Module::Build::WithXSpp: $6$
+    \end{itemize}
+\end{frame}
+
+\section{Конфликты имен}
 
 \begin{frame}[fragile]
     \frametitle{Конфликты имен}
-    \begin{exampleblock}{Пример}
-        \begin{lstlisting}
-        #undef do_open
-        #undef do_close
-        \end{lstlisting}
-    \end{exampleblock}
+    \begin{lstlisting}[language=C++,style=PerlXS]
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "EXTERN.h"
+#include "perl.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+#include "XSUB.h"
+
+#undef do_open
+#undef do_close
+
+#include <iostream>
+    \end{lstlisting}
 \end{frame}
 
-\subsection{Трансляция C++ исключений в Perl-исключения}
+\section{Исключения}
+
+\begin{frame}[fragile]
+    \frametitle{Просто и не правильно}
+    MyClass.cc
+    \begin{lstlisting}[language=C++,style=PerlXS]
+    void MyClass::method(int arg) {
+        std::vector<int> tmp;
+        if (arg < 0) croak("MyClass::method: arg should be positive");
+        // ...
+    }
+    \end{lstlisting}
+    \begin{itemize}
+        \item \alert{Утечка} памяти
+        \item Деструктор для tmp вызван не будет
+        \item Потому что croak реализован через longjmp
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Переходим к C++ исключениям}
+    MyClass.cc
+    \begin{lstlisting}[language=C++,style=PerlXS]
+    #include <stdexcept>
+    void MyClass::method(int arg) {
+        std::vector<int> tmp;
+        if (arg < 0) throw std::runtime_error("MyClass::method: arg should be positive");
+        // ...
+    }
+    \end{lstlisting}
+    \begin{itemize}
+        \item Программа упадет
+        \item Исключение надо еще перехватить
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Переходим к C++ исключениям}
+    MyModule.xs
+    \begin{lstlisting}[language=C++,style=PerlXS]
+    void
+    MyClass::method(int arg);
+    \end{lstlisting}
+    Придется переписать и обернуть в try...catch.
+    \begin{lstlisting}[language=C++,style=PerlXS]
+    void
+    MyClass::method(int arg)
+    CODE:
+        try {
+            THIS->method(arg);
+        }
+        catch (const std::exception& e) {
+            croak("Ops: %s", e.what());
+        }
+        catch (...) {
+            croak("Ops: unknown c++ exception");
+        }
+    \end{lstlisting}
+    \begin{itemize}
+        \item<2-| alert@2> И получим опять утечку памяти (хоть и мелкую)
+        \item<3-> Именно в такой код наши вызовы оборачивает ExtUtils::XSpp
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Вот так не течет}
+    \begin{lstlisting}[language=C++,style=PerlXS]
+    void
+    MyClass::method(int arg)
+    CODE:
+        char errmsg[1024];
+        errmsg[0] = '\0';
+        try {
+            THIS->method(arg);
+        }
+        catch (const std::exception& e) {
+            snprintf(errmsg, 1024, "Ops: %s", e.what());
+        }
+        catch (...) {
+            snprintf(errmsg, 1024, "Ops: unknown c++ exception");
+        }
+        if (errmsg[0]) {
+            croak("%s", errmsg);
+        }
+    \end{lstlisting}
+\end{frame}
+
+\section{Заключение}
 
 \begin{frame}
-    \frametitle{Трансляция C++ исключений в Perl-исключения}
+    \frametitle{Итого}
+    \begin{itemize}[<+->]
+        \item Писать на C++ можно
+        \item Есть поле для улучшений
+        \item Вопросы?
+    \end{itemize}
 \end{frame}
 
 \end{document}
