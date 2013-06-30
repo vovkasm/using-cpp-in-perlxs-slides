@@ -2,7 +2,7 @@
 \usepackage{cmap}
 \usepackage[english,russian]{babel}
 \usepackage{listings}
-% \usepackage{bookmark}
+\usepackage{bookmark}
 \usepackage{tabu}
 \usepackage{pifont}
 \usepackage{setspace}
@@ -54,15 +54,13 @@
 
 \begin{document}
 
-\begin{frame}
-    \titlepage
-\end{frame}
+\frame{\titlepage}
 
-\begin{frame}{Обзор}
-    \tableofcontents
-\end{frame}
+\frame{\tableofcontents[hideallsubsections]}
 
 \section{Введение}
+
+\frame{\tableofcontents[currentsection,hideothersubsections]}
 
 \subsection{Почему XS}
 
@@ -90,6 +88,7 @@
 \end{frame}
 
 \section{Пример}
+\frame{\tableofcontents[currentsection,hideothersubsections]}
 
 \subsection{Обзор файлов}
 \begin{frame}[t,fragile]
@@ -105,8 +104,8 @@
     \only<1>{ \lstinputlisting[language=Perl]{CppStat/Makefile.PL} }
     \only<2>{ \lstinputlisting[language=Perl]{CppStat/CppStat.pm} }
     \only<3>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=1, lastline=15]{CppStat/CppStat.xs} }
-    \only<4>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=last, firstline=17, lastline=30]{CppStat/CppStat.xs} }
-    \only<5>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=last, firstline=32]{CppStat/CppStat.xs} }
+    \only<4>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=17, firstline=17, lastline=32]{CppStat/CppStat.xs} }
+    \only<5>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=34, firstline=34]{CppStat/CppStat.xs} }
     \begin{onlyenv}<6>
         \begin{lstlisting}[language=C++,style=PerlXS]
 TYPEMAP
@@ -124,6 +123,7 @@ CppStat *     O_OBJECT
 
 
 \section{Как найти компилятор}
+\frame{\tableofcontents[currentsection,hideothersubsections]}
 
 \subsection{CC = g++}
 \begin{frame}[fragile]
@@ -180,7 +180,9 @@ CppStat *     O_OBJECT
 \end{frame}
 
 \section{Конфликты имен}
+\frame{\tableofcontents[currentsection,hideothersubsections]}
 
+\subsection{iostream}
 \begin{frame}[fragile]
     \frametitle{Конфликты имен}
     \begin{lstlisting}[language=C++,style=PerlXS]
@@ -205,6 +207,7 @@ extern "C" {
 \end{frame}
 
 \section{Исключения}
+\frame{\tableofcontents[currentsection,hideothersubsections]}
 
 \subsection{Обычная генерация Perl-исключений}
 \begin{frame}[fragile]
@@ -224,6 +227,7 @@ void MyClass::method(int arg) {
     \end{itemize}
 \end{frame}
 
+\subsection{Наивная реализация \cpp-исключений}
 \begin{frame}[fragile]
     \frametitle{Переходим к \cpp исключениям}
     MyClass.cc
@@ -291,6 +295,7 @@ CODE:
     \end{itemize}
 \end{frame}
 
+\subsection{\cpp-исключения без утечек}
 \begin{frame}[fragile]
     \frametitle{Вот так не течет}
     \begin{lstlisting}[language=C++,style=PerlXS]
@@ -315,13 +320,43 @@ CODE:
 \end{frame}
 
 \section{Заключение}
+\frame{\tableofcontents[currentsection,hideothersubsections]}
 
+\subsection{MakeMaker?}
+
+\begin{frame}[fragile]
+    \frametitle{Хотелось бы писать Makefile.PL так}
+    \begin{lstlisting}[language=Perl]
+use ExtUtils::MakeMaker;
+
+WriteMakefile(
+    NAME         => 'CppStat',
+    VERSION_FROM => 'CppStat.pm',
+    TYPEMAPS     => ['perlobject.map'],
+    XS_LANG      => 'c++',
+);
+    \end{lstlisting}
+\end{frame}
+
+\subsection{exceptions}
+\begin{frame}[fragile]
+    \frametitle{Может быть XS может выглядеть так?}
+    \begin{lstlisting}[language=C++,style=PerlXS]
+void
+MyClass::method(int arg)
+CPPCATCH: std
+    \end{lstlisting}
+\end{frame}
+
+\subsection{Выводы}
 \begin{frame}
     \frametitle{Итого}
-    \begin{itemize}[<+->]
-        \item Писать на \cpp можно
-        \item Есть поле для улучшений
-        \item Вопросы?
+    \begin{itemize}
+        \item<1-> Писать на \cpp можно
+        \item<2-> Есть поле для улучшений
+        \item<3-> Вопросы?
+        \item<4-> \url{mailto:vovkasm@gmail.com}
+        \item<4-> Эта презентация доступна на \url{https://github.com/vovkasm/using-cpp-in-perlxs-slides}
     \end{itemize}
 \end{frame}
 

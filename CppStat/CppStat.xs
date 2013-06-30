@@ -23,7 +23,9 @@ public:
         values.push_back(val);
     }
     double avg() const {
-        return std::accumulate(values.begin(), values.end(), 0.0) / values.size();
+        return std::accumulate(
+                values.begin(), values.end(), 0.0
+            ) / values.size();
     }
 private:
     std::vector<double> values;
