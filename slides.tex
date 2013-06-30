@@ -5,10 +5,15 @@
 % \usepackage{bookmark}
 \usepackage{tabu}
 \usepackage{pifont}
+\usepackage{setspace}
 
-\usepackage{fontspec,unicode-math}
-\setmainfont[Ligatures=TeX]{CMU Sans Serif}
-\setsansfont[Ligatures=TeX]{CMU Sans Serif}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\defaultfontfeatures{Ligatures=TeX}
+\defaultfontfeatures[CMU Sans Serif]{Script=Cyrillic}
+\setmainfont{CMU Sans Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
 
 \usetheme{Frankfurt}
 \usefonttheme{professionalfonts}
@@ -24,7 +29,7 @@
 \definecolor{graylinenumbers}{rgb}{0.6,0.6,0.6}
 
 \lstset{% listings parameters
-    basicstyle=\small\ttfamily,
+    basicstyle=\small\ttfamily\setstretch{0.4},
     showspaces=false,
     showtabs=false,
     showstringspaces=false,
@@ -35,7 +40,7 @@
     numberstyle=\color{graylinenumbers}\tiny,
     stepnumber=2,
     commentstyle=\color{greencomments},
-    keywordstyle=\color{bluekeywords}\bfseries,
+    keywordstyle=\color{bluekeywords},
     stringstyle=\color{redstrings},
     language=C }
 
@@ -201,20 +206,21 @@ extern "C" {
 
 \section{Исключения}
 
+\subsection{Обычная генерация Perl-исключений}
 \begin{frame}[fragile]
     \frametitle{Просто и неправильно}
     MyClass.cc
     \begin{lstlisting}[language=C++,style=PerlXS]
-    void MyClass::method(int arg) {
-        std::vector<int> tmp;
-        if (arg < 0) croak("MyClass::method: arg should be positive");
-        // ...
-    }
+void MyClass::method(int arg) {
+    std::vector<int> tmp;
+    if (arg < 0) croak("MyClass::method: arg should be positive");
+    // ...
+}
     \end{lstlisting}
     \begin{itemize}
-        \item \alert{Утечка} памяти
-        \item Деструктор для tmp вызван не будет
-        \item Потому что croak реализован через longjmp
+        \item<2-| alert@2-> Утечка памяти
+        \item<3-> Деструктор для tmp вызван не будет
+        \item<4-> Потому что croak реализован через longjmp
     \end{itemize}
 \end{frame}
 
@@ -222,12 +228,12 @@ extern "C" {
     \frametitle{Переходим к \cpp исключениям}
     MyClass.cc
     \begin{lstlisting}[language=C++,style=PerlXS]
-    #include <stdexcept>
-    void MyClass::method(int arg) {
-        std::vector<int> tmp;
-        if (arg < 0) throw std::runtime_error("MyClass::method: arg should be positive");
-        // ...
-    }
+#include <stdexcept>
+void MyClass::method(int arg) {
+    std::vector<int> tmp;
+    if (arg < 0) throw std::runtime_error("MyClass::method: arg should be positive");
+    // ...
+}
     \end{lstlisting}
     \begin{itemize}
         \item Программа упадет
@@ -237,28 +243,50 @@ extern "C" {
 
 \begin{frame}[fragile]
     \frametitle{Переходим к \cpp исключениям}
-    MyModule.xs
+    \begin{onlyenv}<1->
+        MyModule.xs
+        \begin{lstlisting}[language=C++,style=PerlXS]
+void
+MyClass::method(int arg);
+        \end{lstlisting}
+        Придется переписать и обернуть в try...catch.
+    \end{onlyenv}
+    \begin{onlyenv}<2->
+        \begin{lstlisting}[language=C++,style=PerlXS]
+void
+MyClass::method(int arg)
+CODE:
+    try {
+        THIS->method(arg);
+    }
+    catch (const std::exception& e) {
+        croak("Ops: %s", e.what());
+    }
+    catch (...) {
+        croak("Ops: unknown c++ exception");
+    }
+        \end{lstlisting}
+    \end{onlyenv}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Переходим к \cpp исключениям}
     \begin{lstlisting}[language=C++,style=PerlXS]
-    void
-    MyClass::method(int arg);
-    \end{lstlisting}
-    Придется переписать и обернуть в try...catch.
-    \begin{lstlisting}[language=C++,style=PerlXS]
-    void
-    MyClass::method(int arg)
-    CODE:
-        try {
-            THIS->method(arg);
-        }
-        catch (const std::exception& e) {
-            croak("Ops: %s", e.what());
-        }
-        catch (...) {
-            croak("Ops: unknown c++ exception");
-        }
+void
+MyClass::method(int arg)
+CODE:
+    try {
+        THIS->method(arg);
+    }
+    catch (const std::exception& e) {
+        croak("Ops: %s", e.what());
+    }
+    catch (...) {
+        croak("Ops: unknown c++ exception");
+    }
     \end{lstlisting}
     \begin{itemize}
-        \item<2-| alert@2> И получим опять утечку памяти (хоть и мелкую)
+        \item<2-| alert@2-> И получим опять утечку памяти (хоть и мелкую)
         \item<3-> Именно в такой код наши вызовы оборачивает ExtUtils::XSpp
     \end{itemize}
 \end{frame}
@@ -266,23 +294,23 @@ extern "C" {
 \begin{frame}[fragile]
     \frametitle{Вот так не течет}
     \begin{lstlisting}[language=C++,style=PerlXS]
-    void
-    MyClass::method(int arg)
-    CODE:
-        char errmsg[1024];
-        errmsg[0] = '\0';
-        try {
-            THIS->method(arg);
-        }
-        catch (const std::exception& e) {
-            snprintf(errmsg, 1024, "Ops: %s", e.what());
-        }
-        catch (...) {
-            snprintf(errmsg, 1024, "Ops: unknown c++ exception");
-        }
-        if (errmsg[0]) {
-            croak("%s", errmsg);
-        }
+void
+MyClass::method(int arg)
+CODE:
+    char errmsg[1024];
+    errmsg[0] = '\0';
+    try {
+        THIS->method(arg);
+    }
+    catch (const std::exception& e) {
+        snprintf(errmsg, 1024, "Ops: %s", e.what());
+    }
+    catch (...) {
+        snprintf(errmsg, 1024, "Ops: unknown c++ exception");
+    }
+    if (errmsg[0]) {
+        croak("%s", errmsg);
+    }
     \end{lstlisting}
 \end{frame}
 
