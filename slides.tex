@@ -2,7 +2,9 @@
 \usepackage{cmap}
 \usepackage[russian,english]{babel}
 \usepackage{listings}
-\usepackage{bookmark}
+% \usepackage{bookmark}
+\usepackage{tabu}
+\usepackage{pifont}
 
 \usepackage{fontspec,unicode-math}
 \setmainfont[Ligatures=TeX]{CMU Sans Serif}
@@ -84,26 +86,35 @@
 
 \section{Пример}
 
+\subsection{Обзор файлов}
 \begin{frame}[t,fragile]
     \frametitle{Пример}
-    \begin{columns}[t]
-        \begin{column}{.3\textwidth}
-            \begin{itemize}
-                \item<alert@1> Makefile.PL
-                \item<alert@2> CppStat.pm
-                \item<alert@3-5> CppStat.xs
-                \item typemap
-                \item perlobject.map
-            \end{itemize}
-        \end{column}
-        \begin{column}{.8\textwidth}
-            \only<1>{ \lstinputlisting[language=Perl]{CppStat/Makefile.PL} }
-            \only<2>{ \lstinputlisting[language=Perl]{CppStat/CppStat.pm} }
-            \only<3>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=1, lastline=15]{CppStat/CppStat.xs} }
-            \only<4>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=last, firstline=17, lastline=34]{CppStat/CppStat.xs} }
-            \only<5>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=last, firstline=36]{CppStat/CppStat.xs} }
-        \end{column}
-    \end{columns}
+    \begin{tabular}{ l | c | c | c | r }
+        \only<1>{\ding{42}}Makefile.PL &
+        \only<2>{\ding{42}}CppStat.pm &
+        \only<3-5>{\ding{42}}CppStat.xs &
+        \only<6>{\ding{42}}typemap &
+        \only<7>{\ding{42}}perlobject.map \\
+        \hline
+    \end{tabular}
+    \only<1>{ \lstinputlisting[language=Perl]{CppStat/Makefile.PL} }
+    \only<2>{ \lstinputlisting[language=Perl]{CppStat/CppStat.pm} }
+    \only<3>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=1, lastline=15]{CppStat/CppStat.xs} }
+    \only<4>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=last, firstline=17, lastline=30]{CppStat/CppStat.xs} }
+    \only<5>{ \lstinputlisting[language=C++, style=PerlXS, firstnumber=last, firstline=32]{CppStat/CppStat.xs} }
+    \begin{onlyenv}<6>
+        \begin{lstlisting}[language=C++,style=PerlXS]
+TYPEMAP
+CppStat *     O_OBJECT
+        \end{lstlisting}
+    \end{onlyenv}
+    \begin{onlyenv}<7>
+        \begin{minipage}[t][4cm][c]{\textwidth}
+            Можно поискать в интернете или сгенерировать с помощью модуля
+            \href{http://search.cpan.org/perldoc?ExtUtils::Typemap::ObjectMap}{ExtUtils::Typemap::ObjectMap}
+            на CPAN
+        \end{minipage}
+    \end{onlyenv} 
 \end{frame}
 
 
