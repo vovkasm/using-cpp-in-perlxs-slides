@@ -1,10 +1,17 @@
-\documentclass[utf8x]{beamer}
-\usepackage[russian]{babel}
+\documentclass[pdflatex,hyperref={unicode=true}]{beamer}
+\usepackage{cmap}
+\usepackage[russian,english]{babel}
 \usepackage{listings}
+\usepackage{bookmark}
+
+\usepackage{fontspec,unicode-math}
+\setmainfont[Ligatures=TeX]{CMU Sans Serif}
+\setsansfont[Ligatures=TeX]{CMU Sans Serif}
 
 \usetheme{Frankfurt}
+\usefonttheme{professionalfonts}
 
-\title{Особенности создания XS-модулей на языке C++}
+\title{Особенности создания XS-модулей на языке \cpp}
 \author{Владимир Тимофеев}
 \date{2013}
 
@@ -15,7 +22,7 @@
 \definecolor{graylinenumbers}{rgb}{0.6,0.6,0.6}
 
 \lstset{% listings parameters
-    basicstyle=\scriptsize\ttfamily,
+    basicstyle=\small\ttfamily,
     showspaces=false,
     showtabs=false,
     showstringspaces=false,
@@ -33,6 +40,10 @@
 \lstdefinestyle{PerlXS}{
     language=C++,
     morekeywords={MODULE,PACKAGE,DESTROY} }
+
+\DeclareRobustCommand{\cpp}{
+    \texorpdfstring{\hbox{C\hspace{-0.5ex}\protect\raisebox{0.5ex}{\protect\scalebox{0.67}{++}}}}{C++}
+}
 
 \begin{document}
 
@@ -58,11 +69,11 @@
     \end{itemize}
 \end{frame}
 
-\subsection{Почему C++}
+\subsection{Почему \cpp}
 
 \begin{frame}
-    \frametitle{Почему C++?}
-    XS -- кодогенератор для C. Но C++...
+    \frametitle{Почему \cpp?}
+    XS -- кодогенератор для C. Но \cpp\ldots
     \begin{itemize}[<+->]
         \item Похож на C
         \item Сравним по скорости и потреблению памяти
@@ -104,7 +115,7 @@
     \lstinputlisting[language=Perl]{CppStat/Makefile.PL}
     \begin{itemize}
         \item Только GCC
-        \item Все файлы как C++
+        \item Все файлы как \cpp 
     \end{itemize}
 \end{frame}
 
@@ -115,7 +126,7 @@
     \begin{itemize}
         \item Компилятор тот же, что для perl
         \item Компилятор должен понимать опцию -x (GCC,Clang)
-        \item Все файлы как C++
+        \item Все файлы как \cpp 
     \end{itemize}
 \end{frame}
 
@@ -126,7 +137,7 @@
     \begin{itemize}
         \item Компилятор тот же, что для perl
         \item GCC,Clang,MSVC
-        \item Все файлы как C++
+        \item Все файлы как \cpp 
     \end{itemize}
 \end{frame}
 
@@ -197,7 +208,7 @@ extern "C" {
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{Переходим к C++ исключениям}
+    \frametitle{Переходим к \cpp исключениям}
     MyClass.cc
     \begin{lstlisting}[language=C++,style=PerlXS]
     #include <stdexcept>
@@ -214,7 +225,7 @@ extern "C" {
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{Переходим к C++ исключениям}
+    \frametitle{Переходим к \cpp исключениям}
     MyModule.xs
     \begin{lstlisting}[language=C++,style=PerlXS]
     void
@@ -269,7 +280,7 @@ extern "C" {
 \begin{frame}
     \frametitle{Итого}
     \begin{itemize}[<+->]
-        \item Писать на C++ можно
+        \item Писать на \cpp можно
         \item Есть поле для улучшений
         \item Вопросы?
     \end{itemize}
