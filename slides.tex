@@ -64,7 +64,7 @@
 
 \subsection{Почему XS}
 
-\begin{frame}
+\begin{frame}[t]
     \frametitle{Почему XS?}
     Потому что мы хотим:
     \begin{itemize}[<+->]
@@ -76,7 +76,7 @@
 
 \subsection{Почему \cpp}
 
-\begin{frame}
+\begin{frame}[t]
     \frametitle{Почему \cpp?}
     XS -- кодогенератор для C. Но \cpp\ldots
     \begin{itemize}[<+->]
@@ -113,10 +113,12 @@ CppStat *     O_OBJECT
         \end{lstlisting}
     \end{onlyenv}
     \begin{onlyenv}<7>
-        \begin{minipage}[t][4cm][c]{\textwidth}
-            Можно поискать в интернете или сгенерировать с помощью модуля
-            \href{http://search.cpan.org/perldoc?ExtUtils::Typemap::ObjectMap}{ExtUtils::Typemap::ObjectMap}
-            на CPAN
+        \begin{minipage}[t][4cm][t]{\textwidth}
+            \begin{itemize}
+                \item Можно поискать в интернете
+                \item или сгенерировать с помощью модуля \href{http://search.cpan.org/perldoc?ExtUtils::Typemap::ObjectMap}{ExtUtils::Typemap::ObjectMap} на CPAN
+                \item или почитать perldoc perlxs
+            \end{itemize}
         \end{minipage}
     \end{onlyenv} 
 \end{frame}
@@ -126,7 +128,7 @@ CppStat *     O_OBJECT
 \frame{\tableofcontents[currentsection,hideothersubsections]}
 
 \subsection{CC = g++}
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{CC = g++}
     \lstinputlisting[language=Perl]{CppStat/Makefile.PL}
     \begin{itemize}
@@ -136,7 +138,7 @@ CppStat *     O_OBJECT
 \end{frame}
 
 \subsection{-x c++}
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{-x c++}
     \lstinputlisting[language=Perl]{CppStat2/Makefile.PL}
     \begin{itemize}
@@ -147,7 +149,7 @@ CppStat *     O_OBJECT
 \end{frame}
 
 \subsection{ExtUtils::CppGuess}
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{ExtUtils::CppGuess}
     \lstinputlisting[language=Perl]{CppStat3/Makefile.PL}
     \begin{itemize}
@@ -158,7 +160,7 @@ CppStat *     O_OBJECT
 \end{frame}
 
 \subsection{Module::Build::WithXSpp}
-\begin{frame}
+\begin{frame}[t]
     \frametitle{Module::Build::WithXSpp}
     Использует ExtUtils::CppGuess, но...
     \begin{itemize}
@@ -168,7 +170,7 @@ CppStat *     O_OBJECT
 \end{frame}
 
 \subsection{Статистика}
-\begin{frame}
+\begin{frame}[t]
     \frametitle{Статистика}
     \begin{itemize}
         \item Всего на CPAN: $\sim120$
@@ -183,7 +185,7 @@ CppStat *     O_OBJECT
 \frame{\tableofcontents[currentsection,hideothersubsections]}
 
 \subsection{iostream}
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{Конфликты имен}
     \begin{lstlisting}[language=C++,style=PerlXS]
 #ifdef __cplusplus
@@ -210,7 +212,7 @@ extern "C" {
 \frame{\tableofcontents[currentsection,hideothersubsections]}
 
 \subsection{Обычная генерация Perl-исключений}
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{Просто и неправильно}
     MyClass.cc
     \begin{lstlisting}[language=C++,style=PerlXS]
@@ -228,14 +230,16 @@ void MyClass::method(int arg) {
 \end{frame}
 
 \subsection{Наивная реализация \cpp-исключений}
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{Переходим к \cpp исключениям}
     MyClass.cc
     \begin{lstlisting}[language=C++,style=PerlXS]
 #include <stdexcept>
 void MyClass::method(int arg) {
     std::vector<int> tmp;
-    if (arg < 0) throw std::runtime_error("MyClass::method: arg should be positive");
+    if (arg < 0) throw std::runtime_error(
+        "MyClass::method: arg should be positive"
+        );
     // ...
 }
     \end{lstlisting}
@@ -245,7 +249,7 @@ void MyClass::method(int arg) {
     \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{Переходим к \cpp исключениям}
     \begin{onlyenv}<1->
         MyModule.xs
@@ -273,7 +277,7 @@ CODE:
     \end{onlyenv}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{Переходим к \cpp исключениям}
     \begin{lstlisting}[language=C++,style=PerlXS]
 void
@@ -296,7 +300,7 @@ CODE:
 \end{frame}
 
 \subsection{\cpp-исключения без утечек}
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{Вот так не течет}
     \begin{lstlisting}[language=C++,style=PerlXS]
 void
@@ -324,7 +328,7 @@ CODE:
 
 \subsection{MakeMaker?}
 
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{Хотелось бы писать Makefile.PL так}
     \begin{lstlisting}[language=Perl]
 use ExtUtils::MakeMaker;
@@ -339,7 +343,7 @@ WriteMakefile(
 \end{frame}
 
 \subsection{exceptions}
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
     \frametitle{Может быть XS может выглядеть так?}
     \begin{lstlisting}[language=C++,style=PerlXS]
 void
@@ -349,14 +353,15 @@ CPPCATCH: std
 \end{frame}
 
 \subsection{Выводы}
-\begin{frame}
+\begin{frame}[t]
     \frametitle{Итого}
     \begin{itemize}
         \item<1-> Писать на \cpp можно
         \item<2-> Есть поле для улучшений
         \item<3-> Вопросы?
         \item<4-> \url{mailto:vovkasm@gmail.com}
-        \item<4-> Эта презентация доступна на \url{https://github.com/vovkasm/using-cpp-in-perlxs-slides}
+        \item<4-> Эта презентация доступна на\\
+            \href{https://github.com/vovkasm/using-cpp-in-perlxs-slides}{github.com/vovkasm/using-cpp-in-perlxs-slides}
     \end{itemize}
 \end{frame}
 
